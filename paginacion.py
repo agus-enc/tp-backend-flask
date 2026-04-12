@@ -5,17 +5,17 @@ def generar_links_paginacion(base_url, limite, desplazamiento, total_registros):
     enlaces = {}
 
     # 1. Primera página
-    enlaces["_first"] = {"href": f"{base_url}?_limit={limite}&_offset=0"}
+    enlaces["_first"] = {"href": f"{base_url}?_offset=0&_limit={limite}"}
 
     # 2. Página anterior
     if desplazamiento > 0:
         offset_prev = max(0, desplazamiento - limite)
-        enlaces["_prev"] = {"href": f"{base_url}?_limit={limite}&_offset={offset_prev}"}
+        enlaces["_prev"] = {"href": f"{base_url}?_offset={offset_prev}&_limit={limite}"}
 
     # 3. Página siguiente
     if desplazamiento + limite < total_registros:
         offset_next = desplazamiento + limite
-        enlaces["_next"] = {"href": f"{base_url}?_limit={limite}&_offset={offset_next}"}
+        enlaces["_next"] = {"href": f"{base_url}?_offset={offset_next}&_limit={limite}"}
 
     # 4. Última página
     if total_registros > 0:
@@ -23,6 +23,6 @@ def generar_links_paginacion(base_url, limite, desplazamiento, total_registros):
     else:
         offset_last = 0
 
-    enlaces["_last"] = {"href": f"{base_url}?_limit={limite}&_offset={offset_last}"}
+    enlaces["_last"] = {"href": f"{base_url}?_offset={offset_last}&_limit={limite}"}
 
     return enlaces

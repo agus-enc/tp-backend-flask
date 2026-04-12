@@ -4,7 +4,7 @@ from paginacion import generar_links_paginacion
 
 partidos_bp = Blueprint("partidos", __name__)
 
-@partidos_bp.route("/", methods=["GET"])
+@partidos_bp.route("", methods=["GET"])
 def listar_partidos():
     try:
         conn = get_connection()
@@ -20,9 +20,10 @@ def listar_partidos():
         partidos = cursor.fetchall()
 
         cursor.execute("""
-            SELECT COUNT(*) FROM partidos;
+            SELECT COUNT(*) AS total FROM partidos;
         """)
-        total_registros = cursor.fetchone()[0]
+        resultado = cursor.fetchone()
+        total_registros = resultado['total']
 
         links = generar_links_paginacion(
             base_url=request.base_url,
@@ -32,8 +33,8 @@ def listar_partidos():
         )
 
         return jsonify({
-            "partidos": partidos,
-            "_links": links
+            "_links": links,
+            "partidos": partidos
         }), 200
 
     except Exception as error:
