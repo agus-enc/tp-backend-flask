@@ -9,7 +9,7 @@ def listar_partidos():
     try:
         conn = get_connection()
         cursor = conn.cursor(dictionary=True)
-        limite = request.args.get('_limit', 10, type=int)
+        limite = request.args.get('_limit', 10, type=int)  # Tomo los argumentos para la paginacion
         offset = request.args.get('_offset', 0, type=int)
 
         cursor.execute("""
@@ -33,8 +33,8 @@ def listar_partidos():
         )
 
         return jsonify({
-            "_links": links,
-            "partidos": partidos
+            "partidos": partidos,
+            "_links": links
         }), 200
 
     except Exception as error:
