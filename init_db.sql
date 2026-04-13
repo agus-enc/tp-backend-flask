@@ -7,7 +7,7 @@ nombre VARCHAR(100) NOT NULL,
 email VARCHAR(100) NOT NULL UNIQUE
 );
 
-CREAT TABLE IF NOT EXISTS partidos (
+CREATE TABLE IF NOT EXISTS partidos (
 ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 equipo_local VARCHAR(100) NOT NULL,
 equipo_visitante VARCHAR(100) NOT NULL,
@@ -22,7 +22,7 @@ INDEX (equipo_local),
 INDEX (equipo_visitante)
 );
 
-CREAT TABLE IF NOT EXISTS predicciones (
+CREATE TABLE IF NOT EXISTS predicciones (
 ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 id_usuario INT NOT NULL,
 id_partido INT NOT NULL,
