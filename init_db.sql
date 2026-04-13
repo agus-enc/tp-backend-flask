@@ -7,11 +7,7 @@ nombre VARCHAR(100) NOT NULL,
 email VARCHAR(100) NOT NULL UNIQUE
 );
 
-<<<<<<< HEAD
 CREAT TABLE IF NOT EXISTS partidos (
-=======
-CREATE TABLE partidos (
->>>>>>> 2a6d62db79cadd9ad31f50d3c257c2976a493a9f
 ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 equipo_local VARCHAR(100) NOT NULL,
 equipo_visitante VARCHAR(100) NOT NULL,
@@ -26,11 +22,7 @@ INDEX (equipo_local),
 INDEX (equipo_visitante)
 );
 
-<<<<<<< HEAD
 CREAT TABLE IF NOT EXISTS predicciones (
-=======
-CREATE TABLE predicciones (
->>>>>>> 2a6d62db79cadd9ad31f50d3c257c2976a493a9f
 ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 id_usuario INT NOT NULL,
 id_partido INT NOT NULL,
