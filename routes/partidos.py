@@ -51,10 +51,11 @@ def listar_partidos():
         total_registros = resultado['total']
 
         links = generar_links_paginacion(   # Usando la funcion de paginacion genero un diccionario con los links
-            base_url=request.base_url,
-            limite=limite,
-            desplazamiento=offset,
-            total_registros=total_registros
+            base_url = request.base_url,
+            limite = limite,
+            desplazamiento = offset,
+            total_registros = total_registros,
+            args_actuales = request.args.to_dict()
         )
 
         return jsonify({
