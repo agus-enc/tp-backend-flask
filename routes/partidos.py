@@ -45,3 +45,35 @@ def listar_partidos():
             cursor.close()
         if conn:
             conn.close()
+            
+@partidos_bp.route("/<int:id>", methods=["PUT"])
+def modificar_partidos(id):
+    datos = request.get_json()
+    equipo_local = datos.get("equipo_local")
+    equipo_visitante = datos.get("equipo_visitante")
+    fecha = datos.get("fecha")
+    if not equipo_local or not equipo_visitante or not fecha:
+        return jsonify({"error" : "Faltan datos obligatorios"}), 400
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute(
+            """UPDATE partidos
+            SET equipo_local = %s, equipo_visitante = %s, fecha = %s
+            WHERE id = %s
+            """, (equipo_local, equipo_visitante, fecha, id)
+        )
+        
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return jsonify({"error" : "Partido no encontrado"}), 404
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({"mensaje" : "Partido actualizado correctamente"}), 200
+    
+    except Exception as e:
+        return jsonify({"error" : str(e)}), 500
