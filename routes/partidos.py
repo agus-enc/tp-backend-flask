@@ -77,3 +77,39 @@ def modificar_partidos(id):
     
     except Exception as e:
         return jsonify({"error" : str(e)}), 500
+    
+
+@partidos_bp.route("/patidos/<int:id>/resultado", methods=['PUT'])
+def actualizar_resultado(id):
+    data = request.get_json()
+    goles_local = data.get("local")
+    goles_visitante = data.get("visitante")
+
+    if goles_local is None or goles_visitante is None:
+        return jsonify({"error":"Datos incompletos"}), 400
+    
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            """UPDATE partidos
+            SET goles_local = %s, goles_visitante = %s
+            WHERE id = %s
+            """, (goles_local,goles_visitante,id)
+        )
+        
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return jsonify ({"error":"Partido no encontrado"}), 404
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({"mensaje":"Resultados actualizados con exito"}), 200
+    except Exception as e:
+        return jsonify({"error":str(e)}), 500
+
+
+
