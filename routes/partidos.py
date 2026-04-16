@@ -102,6 +102,35 @@ def listar_partidos():
             cursor.close()
         if conn:
             conn.close()
+
+@partidos_bp.route("", methods=["POST"])
+def crear_partido():
+    datos = request.get_json()
+    equipo_local = datos.get("equipo_local")
+    equipo_visitante = datos.get("equipo_visitante")
+    fecha = datos.get("fecha")
+    fase = datos.get("fase")
+    if not all([equipo_local, equipo_visitante, fecha, fase]):
+        return jsonify({"error": "Faltan datos obligatorios (local, visitante, fecha, fase)"}), 400
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO partidos (equipo_local, equipo_visitante, fecha, fase)
+            VALUES (%s, %s, %s, %s)
+        """, (equipo_local, equipo_visitante, fecha, fase))
+        
+        conn.commit()
+        return jsonify({"mensaje": "Partido creado exitosamente"}), 201
+
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
             
 @partidos_bp.route("/<int:id>", methods=["PUT"])
 def modificar_partidos(id):

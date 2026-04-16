@@ -4,6 +4,45 @@ from funciones import generar_links_paginacion
 
 usuarios_bp = Blueprint("usuarios", __name__)
 
+@usuarios_bp.route("", methods=["GET"])
+def listar_usuarios():
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True) 
+        # Contrato Swagger:
+        limite = request.args.get('_limit', 10, type=int)
+        offset = request.args.get('_offset', 0, type=int)
+
+        cursor.execute("""
+            SELECT id, nombre, email 
+            FROM usuarios 
+            LIMIT %s OFFSET %s;
+        """, (limite, offset))
+        usuarios = cursor.fetchall()
+
+        cursor.execute("SELECT COUNT(*) AS total FROM usuarios;")
+        total_registros = cursor.fetchone()['total']
+
+        links = generar_links_paginacion(
+            base_url=request.base_url,
+            limite=limite,
+            desplazamiento=offset,
+            total_registros=total_registros
+        )
+
+        return jsonify({
+            "usuarios": usuarios,
+            "_links": links
+        }), 200
+
+    except Exception as error:
+        return jsonify({"error": "Error al obtener los usuarios"}), 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'conn' in locals(): conn.close()
+
 @usuarios_bp.route("/<int:id>", methods=["GET"])
 def obtener_usuario(id):
     try:
