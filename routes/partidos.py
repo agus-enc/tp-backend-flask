@@ -184,8 +184,8 @@ def registrar_prediccion(id):
             return formatear_errores(400, "Bad Request", "El cuerpo de la petición debe ser un JSON válido."), 400
 
         id_usuario = datos.get('id_usuario')
-        goles_local = datos.get('goles_local')
-        goles_visitante = datos.get('goles_visitante')
+        goles_local = datos.get('local')
+        goles_visitante = datos.get('visitante')
 
         if id_usuario is None or goles_local is None or goles_visitante is None:
             return formatear_errores(400, "Bad Request","Falta uno o mas campos obligatorios."), 400
