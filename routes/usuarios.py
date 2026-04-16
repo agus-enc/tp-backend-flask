@@ -53,3 +53,36 @@ def eliminar_usuario(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@usuarios_bp.route("/usuarios/<int:id>", methods=["PUT"])
+def reemplazar_usuario(id):
+    data = request.get_json()
+    nombre = data.get("nombre")
+    email = data.get("email")
+
+    if nombre is None or email is None:
+        return jsonify({"error": "Datos incompletos. Se requiere nombre y email"}), 400
+    
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            """UPDATE usuarios
+            SET nombre = %s, email = %s
+            WHERE id = %s
+            """, (nombre, email, id)
+        )
+        
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return jsonify({"error": "Usuario no encontrado"}), 404
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return jsonify({"mensaje": "Usuario actualizado con éxito"}), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
