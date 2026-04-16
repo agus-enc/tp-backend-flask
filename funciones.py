@@ -64,9 +64,7 @@ def es_fecha_valida(cadena_fecha):
     y si es una fecha real en el calendario.
     """
     try:
-        # Intenta convertir el texto a fecha con el formato exacto
         datetime.strptime(cadena_fecha, '%Y-%m-%d')
         return True
     except ValueError:
-        # Si falla (ya sea por formato o porque mandan 30 de febrero), devuelve False
         return False
