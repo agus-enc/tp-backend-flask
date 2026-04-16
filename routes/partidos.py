@@ -9,8 +9,8 @@ def listar_partidos():
     conn = None
     cursor = None
     try:
-        conn = get_connection()   # Creo la conexion
-        cursor = conn.cursor(dictionary=True)   # Creo el cursor que ejecuta los comandos dentro de la bd
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
         limite_str = request.args.get('_limit')
         offset_str = request.args.get('_offset')
 
@@ -34,19 +34,18 @@ def listar_partidos():
         fecha = request.args.get('fecha')
         fase = request.args.get('fase')
 
-        # Armo los queries base a los que agrego dinamicamente los demas parametros luego si existen
-        query_general_base = "SELECT id, equipo_local, equipo_visitante, fecha, fase FROM partidos" # Toma los campos que necesita de la bd de la tabla de partidos
-        query_count_base = "SELECT COUNT(*) AS total FROM partidos" # Cuenta todos los partidos
+        query_general_base = "SELECT id, equipo_local, equipo_visitante, fecha, fase FROM partidos"
+        query_count_base = "SELECT COUNT(*) AS total FROM partidos"
 
-        condiciones = []   # Armo lista para guardar los comandos sql par aluego sumarlas al query base y armar el query final
-        parametros = []  # Aca guardo las condiciones que vengan en la url, si es que vienen
+        condiciones = []
+        parametros = []
 
         if equipo:
             condiciones.append("(equipo_local = %s OR equipo_visitante = %s)")
             parametros.append(equipo)
             parametros.append(equipo)  # Lo agrego dos veces porque hay dos %s y el conector lo lee en orden, matcheando 1 a 1
 
-        if fecha: # Si existe el parametro fecha en la url, agrega la condicion a la lista de comandos sql a ejecutar dentro del where y el parametro en si a la lista de parametros a remplazar en los %s
+        if fecha:
             if es_fecha_valida(fecha):
                 condiciones.append("DATE(fecha) = %s")
                 parametros.append(fecha)
@@ -57,7 +56,7 @@ def listar_partidos():
             condiciones.append("fase = %s")
             parametros.append(fase)
 
-        if condiciones: # Si la lista de condiciones tiene al menos un filtro, lo suma al query base para armar el final
+        if condiciones:
             clausula_where = " WHERE " + " AND ".join(condiciones)
             query_general_base += clausula_where
             query_count_base += clausula_where
@@ -65,23 +64,23 @@ def listar_partidos():
         query_final = query_general_base + " LIMIT %s OFFSET %s"
         parametros_con_paginacion = parametros + [limite, offset]
 
-        cursor.execute(query_count_base, tuple(parametros))  # Calculo la cantidad total de partidos para usarlos en el last de la paginacion
+        cursor.execute(query_count_base, tuple(parametros))
         resultado = cursor.fetchone()
         total_registros = resultado['total']
 
         if offset > total_registros:
             return formatear_errores(404, "Not Found", "Pagina fuera de rango"), 404
 
-        cursor.execute(query_final, tuple(parametros_con_paginacion))  # Los transformo a tuplas por posibles errores de tipo
+        cursor.execute(query_final, tuple(parametros_con_paginacion))
         partidos = cursor.fetchall()
 
-        if not partidos:  # Si la lista está vacía
+        if not partidos:
             return "", 204
 
         for partido in partidos:
             partido['fecha'] = partido['fecha'].strftime('%Y-%m-%d')
 
-        links = generar_links_paginacion(   # Usando la funcion de paginacion genero un diccionario con los links
+        links = generar_links_paginacion(
             base_url = request.base_url,
             limite = limite,
             desplazamiento = offset,
