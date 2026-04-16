@@ -215,7 +215,7 @@ def registrar_prediccion(id):
         resultado = cursor.fetchone()
 
         if resultado['total_predicciones'] > 0:
-            return formatear_errores(400, "Bad Request", "El usuario ya realizó una predicción para este partido."), 400
+            return formatear_errores(400, "Bad Request", "El usuario ya realizó una predicción para este partido."), 409
 
         cursor.execute(
             """
