@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify, request
 from db import get_connection
 from funciones import generar_links_paginacion, formatear_errores, es_fecha_valida
+from datetime import datetime
+from mysql.connector.errors import IntegrityError
 
 partidos_bp = Blueprint("partidos", __name__)
 
@@ -163,7 +165,6 @@ def modificar_partidos(id):
     
     except Exception as e:
         return jsonify({"error" : str(e)}), 500
-    
 
 @partidos_bp.route("/patidos/<int:id>/resultado", methods=['PUT'])
 def actualizar_resultado(id):
@@ -196,7 +197,6 @@ def actualizar_resultado(id):
         return jsonify({"mensaje":"Resultados actualizados con exito"}), 200
     except Exception as e:
         return jsonify({"error":str(e)}), 500
-
 
 @partidos_bp.route("/partidos/<int:id>", methods=["PATCH"])
 def actualizar_partido(id):
@@ -242,3 +242,72 @@ def actualizar_partido(id):
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@partidos_bp.route("/<int:id>/prediccion", methods=["POST"])
+def registrar_prediccion(id):
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        datos = request.get_json(silent=True)
+
+        if not datos:
+            return formatear_errores(400, "Bad Request", "El cuerpo de la petición debe ser un JSON válido."), 400
+
+        id_usuario = datos.get('id_usuario')
+        goles_local = datos.get('local')
+        goles_visitante = datos.get('visitante')
+
+        if id_usuario is None or goles_local is None or goles_visitante is None:
+            return formatear_errores(400, "Bad Request","Falta uno o mas campos obligatorios."), 400
+
+        if not isinstance(id_usuario, int):
+            return formatear_errores(400, "Bad Request", "El id del usuario debe ser un número."), 400
+
+        if not isinstance(goles_local, int) or not isinstance(goles_visitante, int) or goles_local < 0 or goles_visitante < 0:
+            return formatear_errores(400, "Bad Request", "Los goles deben ser números enteros positivos o cero."), 400
+
+        cursor.execute("SELECT fecha FROM partidos WHERE id = %s", (id,))
+        partido = cursor.fetchone()
+
+        if not partido:
+            return formatear_errores(404, "Not Found", "El partido no existe."), 404
+
+        if partido['fecha'] <= datetime.now():
+            return formatear_errores(400, "Bad Request","El partido ya se jugó o ya comenzó. No se admiten predicciones."), 400
+
+        cursor.execute(
+            """
+            SELECT COUNT(*) AS total_predicciones
+            FROM predicciones
+            WHERE id_usuario = %s AND id_partido = %s
+            """, (id_usuario, id)
+        )
+        resultado = cursor.fetchone()
+
+        if resultado['total_predicciones'] > 0:
+            return formatear_errores(400, "Bad Request", "El usuario ya realizó una predicción para este partido."), 409
+
+        cursor.execute(
+            """
+            INSERT into predicciones (id_usuario, id_partido, goles_local, goles_visitante) VALUES (%s, %s, %s, %s)
+            """, (id_usuario, id, goles_local, goles_visitante)
+        )
+        conn.commit()
+        return "", 201
+
+    except IntegrityError as error:
+        # Si el error es por la llave foránea del usuario
+        return formatear_errores(400, "Bad Request", "El usuario especificado no existe."), 400
+
+    except Exception as error:
+        print(error)
+        return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
