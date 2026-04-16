@@ -28,3 +28,28 @@ def obtener_usuario(id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@usuarios_bp.route("/usuarios/<int:id>", methods=["DELETE"])
+def eliminar_usuario(id):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        #verifica si existe el id
+        cursor.execute("SELECT id FROM usuarios WHERE id = %s, (id,)")
+        usuario = cursor.fetchone()
+
+        if not usuario:
+            return jsonify({"error":"Usuario no encontrado"}), 404
+        
+        #borrar usuario
+        cursor.execute("DELETE from usuarios WHERE id = %s, (id,)")
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return '', 204
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
