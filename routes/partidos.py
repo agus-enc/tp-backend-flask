@@ -198,4 +198,47 @@ def actualizar_resultado(id):
         return jsonify({"error":str(e)}), 500
 
 
+@partidos_bp.route("/partidos/<int:id>", methods=["PATCH"])
+def actualizar_partido(id):
+    data = request.get_json()
+    
+    equipo_local = data.get("equipo_local")
+    equipo_visitante = data.get("equipo_visitante")
+    fecha = data.get("fecha")
+    fase = data.get("fase")
 
+    if equipo_local is None and equipo_visitante is None and fecha is None and fase is None:
+        return jsonify({"error": "No se enviaron datos para actualizar"}), 400
+    
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        
+        if equipo_local:
+            cursor.execute("UPDATE partidos SET equipo_local = %s WHERE id = %s", (equipo_local, id))
+            
+        if equipo_visitante:
+            cursor.execute("UPDATE partidos SET equipo_visitante = %s WHERE id = %s", (equipo_visitante, id))
+            
+        if fecha:
+            cursor.execute("UPDATE partidos SET fecha = %s WHERE id = %s", (fecha, id))
+            
+        if fase:
+            cursor.execute("UPDATE partidos SET fase = %s WHERE id = %s", (fase, id))
+
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            cursor.execute("SELECT id FROM partidos WHERE id = %s", (id,))
+            if not cursor.fetchone():
+                cursor.close()
+                conn.close()
+                return jsonify({"error": "Partido no encontrado"}), 404
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify({"mensaje": "Partido actualizado con éxito"}), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
