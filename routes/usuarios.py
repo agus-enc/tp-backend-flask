@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from db import get_connection
-from funciones import generar_links_paginacion
+from funciones import generar_links_paginacion, formatear_errores
 
 usuarios_bp = Blueprint("usuarios", __name__)
 
@@ -17,7 +17,7 @@ def listar_usuarios():
 
         cursor.execute("""
             SELECT id, nombre, email 
-            FROM usuarios 
+            FROM usarios
             LIMIT %s OFFSET %s;
         """, (limite, offset))
         usuarios = cursor.fetchall()
@@ -29,7 +29,8 @@ def listar_usuarios():
             base_url=request.base_url,
             limite=limite,
             desplazamiento=offset,
-            total_registros=total_registros
+            total_registros=total_registros,
+            args_actuales = request.args.to_dict()
         )
 
         return jsonify({
@@ -68,29 +69,29 @@ def obtener_usuario(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@usuarios_bp.route("/usuarios/<int:id>", methods=["DELETE"])
+@usuarios_bp.route("/<int:id>", methods=["DELETE"])
 def eliminar_usuario(id):
     try:
         conn = get_connection()
         cursor = conn.cursor()
 
         #verifica si existe el id
-        cursor.execute("SELECT id FROM usuarios WHERE id = %s, (id,)")
+        cursor.execute("SELECT id FROM usuarios WHERE id = %s", (id,))
         usuario = cursor.fetchone()
 
         if not usuario:
-            return jsonify({"error":"Usuario no encontrado"}), 404
+            return formatear_errores(404, "Not Found", "Usuario no encontrado"), 404
         
         #borrar usuario
-        cursor.execute("DELETE from usuarios WHERE id = %s, (id,)")
+        cursor.execute("DELETE from usuarios WHERE id = %s", (id,))
         conn.commit()
         cursor.close()
         conn.close()
 
-        return '', 204
+        return '', 200
     
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
 
 @usuarios_bp.route("/usuarios/<int:id>", methods=["PUT"])
 def reemplazar_usuario(id):
