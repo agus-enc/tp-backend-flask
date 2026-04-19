@@ -6,11 +6,11 @@ Trabajo práctico para la materia **Introducción al desarrollo de Software**
 La API permite administrar los registros del mundial, registrar los resultados y gestionar las predicciones de los usuarios con un sistema de ranking automatizado.
 ## Tecnologias utilizadas
 Cada integrante del grupo usó un entorno virtual para gestionar la creación del proyecto.  
--**Lenguaje** Python 3.12
+-**Lenguaje**: Python 3.12
 
--**Framework** Flask
+-**Framework**: Flask
 
--**Base de datos** MySQL
+-**Base de datos**: MySQL
 
 ## Estructura del proyecto
 
