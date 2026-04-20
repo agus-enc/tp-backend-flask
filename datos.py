@@ -30,13 +30,13 @@ def poblar_base_de_datos():
 
         print("Insertando partidos (Pasados y Futuros)...")
         partidos = [
-            ("Argentina", "Francia", "2022-12-18 12:00:00", "Final", "Lusail", "Doha", 3, 3),
-            ("Brasil", "Croacia", "2022-12-09 12:00:00", "Cuartos", "Education City", "Al Rayyan", 1, 1),
-            ("España", "Alemania", "2026-07-10 16:00:00", "Semifinal", "MetLife", "New York", None, None),
-            ("Uruguay", "Colombia", "2026-06-25 19:00:00", "Grupos", "Hard Rock", "Miami", None, None)
+            ("Argentina", "Francia", "2022-12-18 12:00:00", "Final", 3, 3),
+            ("Brasil", "Croacia", "2022-12-09 12:00:00", "Cuartos", 1, 1),
+            ("España", "Alemania", "2026-07-10 16:00:00", "Semifinal", None, None),
+            ("Uruguay", "Colombia", "2026-06-25 19:00:00", "Grupos", None, None)
         ]
         cursor.executemany(
-            "INSERT INTO partidos (equipo_local, equipo_visitante, fecha, fase, estadio, ciudad, goles_local, goles_visitante) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+            "INSERT INTO partidos (equipo_local, equipo_visitante, fecha, fase, goles_local, goles_visitante) VALUES (%s, %s, %s, %s, %s, %s)",
             partidos
         )
 
