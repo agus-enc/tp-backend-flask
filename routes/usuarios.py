@@ -39,7 +39,9 @@ def listar_usuarios():
         }), 200
 
     except Exception as error:
-        return jsonify({"error": "Error al obtener los usuarios"}), 500
+        print(error)
+        return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
+
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
@@ -64,10 +66,11 @@ def obtener_usuario(id):
             }), 200
         else:
             # Si fetchone() dio None, es porque no existe ese ID
-            return jsonify({"error": "Usuario no encontrado"}), 404
+            return formatear_errores(404, "Not Found", "Usuario no encontrado"), 404
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(e)
+        return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
 
 @usuarios_bp.route("/<int:id>", methods=["DELETE"])
 def eliminar_usuario(id):
@@ -91,6 +94,7 @@ def eliminar_usuario(id):
         return '', 200
     
     except Exception as e:
+        print(e)
         return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
 
 @usuarios_bp.route("/usuarios/<int:id>", methods=["PUT"])
@@ -100,7 +104,7 @@ def reemplazar_usuario(id):
     email = data.get("email")
 
     if nombre is None or email is None:
-        return jsonify({"error": "Datos incompletos. Se requiere nombre y email"}), 400
+        return formatear_errores(400, "Bad Request", "Datos incompletos. Se requiere nombre y email"), 400
     
     try:
         conn = get_connection()
@@ -116,7 +120,7 @@ def reemplazar_usuario(id):
         if cursor.rowcount == 0:
             cursor.close()
             conn.close()
-            return jsonify({"error": "Usuario no encontrado"}), 404
+            return formatear_errores(404, "Not Found", "Usuario no encontrado"), 404
         
         conn.commit()
         cursor.close()
@@ -125,4 +129,5 @@ def reemplazar_usuario(id):
         return jsonify({"mensaje": "Usuario actualizado con éxito"}), 200
         
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(e)
+        return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
