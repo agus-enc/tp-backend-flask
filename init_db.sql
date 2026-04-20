@@ -13,13 +13,8 @@ equipo_local VARCHAR(100) NOT NULL,
 equipo_visitante VARCHAR(100) NOT NULL,
 fecha DATETIME NOT NULL,
 fase VARCHAR(50) NOT NULL,
-estadio VARCHAR(50) NOT NULL,
-ciudad VARCHAR(50) NOT NULL,
 goles_local INT DEFAULT NULL, -- todavía no se jugó
 goles_visitante INT DEFAULT NULL, 
-INDEX (fecha), -- pide filtrar partidos por equipo, fecha y fase
-INDEX (equipo_local),
-INDEX (equipo_visitante)
 );
 
 CREATE TABLE IF NOT EXISTS predicciones (
