@@ -135,7 +135,33 @@ def crear_partido():
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
-            
+
+@partidos_bp.route('/<int:id>', methods=['GET'])
+def obtener_partido(id):
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+        
+        sql = "SELECT * FROM partidos WHERE id = %s"
+        cursor.execute(sql, (id,))
+        partido = cursor.fetchone()
+
+        partido['fecha'] = partido['fecha'].strftime('%Y-%m-%d')
+
+        if not partido:
+            return formatear_errores(404, "Not Found", f"No se encontró el partido con ID {id}"), 404
+        return jsonify(partido), 200
+
+    except Exception as error:
+        print(error)
+        return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()
+
+
 @partidos_bp.route("/<int:id>", methods=["PUT"])
 def modificar_partidos(id):
     conn = None
