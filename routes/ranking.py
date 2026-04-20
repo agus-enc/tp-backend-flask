@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request
 from db import get_connection
-from funciones import generar_links_paginacion
+from funciones import generar_links_paginacion, formatear_errores
 
 ranking_bp = Blueprint("ranking", __name__)
 
-@ranking_bp..route('', methods=['GET'])
+@ranking_bp.route('', methods=['GET'])
 def get_ranking():
     conn = None
     cursor = None
@@ -52,21 +52,21 @@ def get_ranking():
             LIMIT %s OFFSET %s
             """
             
-            cursor.execute(sql, (limit, offset))
-            ranking_data = cursor.fetchall()
+        cursor.execute(sql, (limit, offset))
+        ranking_data = cursor.fetchall()
 
-            links = generar_links_paginacion(
-                base_url=request.base_url,
-                limite=limit,
-                desplazamiento=offset,
-                total_registros=total_usuarios,
-                args_actuales=request.args.to_dict()
-            )
+        links = generar_links_paginacion(
+            base_url=request.base_url,
+            limite=limit,
+            desplazamiento=offset,
+            total_registros=total_usuarios,
+            args_actuales=request.args.to_dict()
+        )
 
-            return jsonify({
-                "data": ranking_data,
-                "_links": links  
-            }), 200
+        return jsonify({
+            "data": ranking_data,
+            "_links": links
+        }), 200
 
     except Exception as error:
         print(error)
