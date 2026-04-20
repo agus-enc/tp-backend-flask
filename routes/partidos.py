@@ -112,10 +112,10 @@ def crear_partido():
     equipo_visitante = datos.get("equipo_visitante")
     fecha = datos.get("fecha")
     fase = datos.get("fase")
+
     if not all([equipo_local, equipo_visitante, fecha, fase]):
-        return jsonify({"error": "Faltan datos obligatorios (local, visitante, fecha, fase)"}), 400
-    conn = None
-    cursor = None
+        return formatear_errores(400, "Bad Request", "Faltan datos obligatorios"), 400
+
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -129,45 +129,59 @@ def crear_partido():
         return jsonify({"mensaje": "Partido creado exitosamente"}), 201
 
     except Exception as error:
-        return jsonify({"error": str(error)}), 500
+        print(error)
+        return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
+
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
             
 @partidos_bp.route("/<int:id>", methods=["PUT"])
 def modificar_partidos(id):
+    conn = None
+    cursor = None
+
     datos = request.get_json()
     equipo_local = datos.get("equipo_local")
     equipo_visitante = datos.get("equipo_visitante")
     fecha = datos.get("fecha")
+
     if not equipo_local or not equipo_visitante or not fecha:
-        return jsonify({"error" : "Faltan datos obligatorios"}), 400
+        return formatear_errores(400, "Bad Request", "Faltan datos obligatorios"), 400
+
     try:
         conn = get_connection()
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute(
-            """UPDATE partidos
+            """
+            UPDATE partidos
             SET equipo_local = %s, equipo_visitante = %s, fecha = %s
             WHERE id = %s
             """, (equipo_local, equipo_visitante, fecha, id)
         )
         
         if cursor.rowcount == 0:
-            cursor.close()
-            conn.close()
-            return jsonify({"error" : "Partido no encontrado"}), 404
+            return formatear_errores(404, "Not Found", "Partido no encontrado"), 404
         conn.commit()
-        cursor.close()
-        conn.close()
 
         return jsonify({"mensaje" : "Partido actualizado correctamente"}), 200
     
     except Exception as e:
-        return jsonify({"error" : str(e)}), 500
+        print(e)
+        return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 @partidos_bp.route("/<int:id>/resultado", methods=['PUT'])
 def actualizar_resultado(id):
+    conn = None
+    cursor = None
+
     data = request.get_json()
     goles_local = data.get("local")
     goles_visitante = data.get("visitante")
@@ -187,19 +201,27 @@ def actualizar_resultado(id):
         )
         
         if cursor.rowcount == 0:
-            cursor.close()
-            conn.close()
             return formatear_errores(404, "Not Found", "Partido no encontrado"), 404
+
         conn.commit()
-        cursor.close()
-        conn.close()
         
         return jsonify({"mensaje":"Resultados actualizados con exito"}), 200
+
     except Exception as e:
+        print(e)
         return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
 
-@partidos_bp.route("/partidos/<int:id>", methods=["PATCH"])
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+@partidos_bp.route("/<int:id>", methods=["PATCH"])
 def actualizar_partido(id):
+    conn = None
+    cursor = None
+
     data = request.get_json()
     
     equipo_local = data.get("equipo_local")
@@ -208,7 +230,7 @@ def actualizar_partido(id):
     fase = data.get("fase")
 
     if equipo_local is None and equipo_visitante is None and fecha is None and fase is None:
-        return jsonify({"error": "No se enviaron datos para actualizar"}), 400
+        return formatear_errores(400, "Bad Request", "No se enviaron datos para actualizar"), 400
     
     try:
         conn = get_connection()
@@ -231,17 +253,19 @@ def actualizar_partido(id):
         if cursor.rowcount == 0:
             cursor.execute("SELECT id FROM partidos WHERE id = %s", (id,))
             if not cursor.fetchone():
-                cursor.close()
-                conn.close()
-                return jsonify({"error": "Partido no encontrado"}), 404
-        
-        cursor.close()
-        conn.close()
+                return formatear_errores(404, "Not Found", "Partido no encontrado"), 404
         
         return jsonify({"mensaje": "Partido actualizado con éxito"}), 200
         
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        print(e)
+        return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 @partidos_bp.route("/<int:id>/prediccion", methods=["POST"])
 def registrar_prediccion(id):
