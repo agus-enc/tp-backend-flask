@@ -46,6 +46,41 @@ def listar_usuarios():
         if 'cursor' in locals(): cursor.close()
         if 'conn' in locals(): conn.close()
 
+@usuarios_bp.route("", methods=["POST"])
+def crear_usuario():
+    datos = request.get_json(silent=True)
+    if not datos:
+        return formatear_errores(400, "Bad Request", "Faltan datos obligatorios"), 400
+
+    nombre = datos.get("nombre")
+    email = datos.get("email")
+
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            INSERT INTO usuarios (nombre, email)
+            VALUES (%s, %s)
+        """, (nombre, email))
+        
+        conn.commit()
+        nuevo_id = cursor.lastrowid # para conocer el nuevo ID creado 
+        
+        return jsonify({
+            "id_usuario": nuevo_id,
+            "mensaje": "Usuario creado exitosamente"
+        }), 201
+
+    except Exception as error:
+        print(error)
+        return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
+    finally:
+        if cursor: cursor.close()
+        if conn: conn.close()
+
 @usuarios_bp.route("/<int:id>", methods=["GET"])
 def obtener_usuario(id):
     try:
