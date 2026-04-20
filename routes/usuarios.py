@@ -132,7 +132,7 @@ def eliminar_usuario(id):
         print(e)
         return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
 
-@usuarios_bp.route("/usuarios/<int:id>", methods=["PUT"])
+@usuarios_bp.route("/<int:id>", methods=["PUT"])
 def reemplazar_usuario(id):
     data = request.get_json()
     nombre = data.get("nombre")
