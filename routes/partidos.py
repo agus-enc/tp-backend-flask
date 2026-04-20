@@ -349,7 +349,7 @@ def registrar_prediccion(id):
         return "", 201
 
     except IntegrityError as error:
-        # Si el error es por la llave foránea del usuario
+        # Separo el caso en el que el error se de por la foreing key id de usuario
         return formatear_errores(400, "Bad Request", "El usuario especificado no existe."), 400
 
     except Exception as error:

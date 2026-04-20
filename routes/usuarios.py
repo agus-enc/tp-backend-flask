@@ -49,11 +49,11 @@ def listar_usuarios():
 @usuarios_bp.route("", methods=["POST"])
 def crear_usuario():
     datos = request.get_json(silent=True)
-    if not datos:
-        return formatear_errores(400, "Bad Request", "Faltan datos obligatorios"), 400
-
     nombre = datos.get("nombre")
     email = datos.get("email")
+
+    if not nombre or not email:
+        return formatear_errores(400, "Bad Request", "Faltan datos obligatorios"), 400
 
     conn = None
     cursor = None
