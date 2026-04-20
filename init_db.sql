@@ -14,7 +14,7 @@ equipo_visitante VARCHAR(100) NOT NULL,
 fecha DATETIME NOT NULL,
 fase VARCHAR(50) NOT NULL,
 goles_local INT DEFAULT NULL, -- todavía no se jugó
-goles_visitante INT DEFAULT NULL, 
+goles_visitante INT DEFAULT NULL 
 );
 
 CREATE TABLE IF NOT EXISTS predicciones (
