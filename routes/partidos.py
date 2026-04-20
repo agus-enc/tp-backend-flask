@@ -161,7 +161,6 @@ def obtener_partido(id):
         if cursor: cursor.close()
         if conn: conn.close()
 
-
 @partidos_bp.route("/<int:id>", methods=["PUT"])
 def modificar_partidos(id):
     conn = None

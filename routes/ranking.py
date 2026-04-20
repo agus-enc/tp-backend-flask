@@ -9,7 +9,7 @@ def get_ranking():
     conn = None
     cursor = None
     try:
-       	conn = get_connection()
+        conn = get_connection()
         cursor = conn.cursor(dictionary=True) 
 
         limite_str = request.args.get('_limit')

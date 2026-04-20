@@ -18,7 +18,7 @@ def poblar_base_de_datos():
 
         print("Insertando usuarios de prueba...")
         usuarios = [
-            ("Lionel Scaloni", "leo.scaloni@afa.com"),
+            ("Jose Gonzalez", "jo.gonzalez@afa.com"),
             ("Juan Lopez", "jlopez@fi.uba.ar"),
             ("Pedro Valdéz", "pvaldez@fi.uba.ar"),
             ("Carla Simone", "csimone@fi.uba.ar"),
