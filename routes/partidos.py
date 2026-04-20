@@ -311,3 +311,30 @@ def registrar_prediccion(id):
             cursor.close()
         if conn:
             conn.close()
+
+@partidos_bp.route('/<int:id>', methods=['DELETE'])
+def borrar_partido(id):
+    conn = None
+    cursor = None
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("DELETE FROM partidos WHERE id = %s", (id,))
+
+        if cursor.rowcount == 0:
+            return formatear_errores(404, "Not Found", "El partido no existe."), 404
+
+        conn.commit()
+
+        return '', 204
+
+    except Exception as error:
+        print(error)
+        return formatear_errores(500, "Internal Server Error", "Problema inesperado en el servidor"), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
