@@ -17,7 +17,7 @@ def listar_usuarios():
 
         cursor.execute("""
             SELECT id, nombre, email 
-            FROM usarios
+            FROM usuarios
             LIMIT %s OFFSET %s;
         """, (limite, offset))
         usuarios = cursor.fetchall()
