@@ -35,7 +35,7 @@ def get_ranking():
         total_usuarios = resultado_total['total'] if resultado_total else 0
 
         sql = """
-            SELECT u.id_usuario, 
+            SELECT u.id, 
                 SUM(
                     CASE 
                         WHEN p.goles_local=pr.goles_local AND p.goles_visitante=pr.goles_visitante THEN 3
@@ -44,10 +44,10 @@ def get_ranking():
                     END
                 ) AS puntos
             FROM usuarios u 
-            JOIN predicciones pr ON u.id_usuario=pr.id_usuario
-            JOIN partidos p ON pr.id_partido=p.id_partido
+            JOIN predicciones pr ON u.id=pr.id
+            JOIN partidos p ON pr.id=p.id
             WHERE p.goles_local IS NOT NULL AND p.goles_visitante IS NOT NULL
-            GROUP BY u.id_usuario
+            GROUP BY u.id
             ORDER BY puntos DESC 
             LIMIT %s OFFSET %s
             """
