@@ -148,10 +148,11 @@ def obtener_partido(id):
         cursor.execute(sql, (id,))
         partido = cursor.fetchone()
 
-        partido['fecha'] = partido['fecha'].strftime('%Y-%m-%d')
-
         if not partido:
             return formatear_errores(404, "Not Found", f"No se encontró el partido con ID {id}"), 404
+
+        partido['fecha'] = partido['fecha'].strftime('%Y-%m-%d')
+
         return jsonify(partido), 200
 
     except Exception as error:
